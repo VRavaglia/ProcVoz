@@ -1,6 +1,7 @@
 import sys, pygame
 import pprint
 pygame.init()
+pygame.font.init() 
 pygame.display.set_caption('Batalha Naval')
 
 size = width, height = 740, 740
@@ -92,13 +93,24 @@ for i in range(0, 3):
     tabuleiros_rect.append(tabuleiros[i].get_rect())
     tabuleiros_rect[i] = tabuleiros_rect[i].move(tabuleiros_pos_inicial[i])
 
+# Textos e Etrada de Navios
 
-while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
+myfont = pygame.font.SysFont('Open Sans', 30)
 
-    screen.fill(white)
+estado = "entrada"
+navios_inseridos = 0
+posicao_inicial = 0
 
+textos_perguntas = ["Diga a posicao inicial do", "Diga a posicao final do"]
+nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta-avioes (5)"]
+
+def estado_entrada():
+    texto = textos_perguntas[posicao_inicial] + " " + nomes_navios[navios_inseridos]
+    pergunta = myfont.render(texto, False, (0, 0, 0))
+    screen.blit(pergunta,(50,370))
+
+
+def estado_jogo():
     for i in range(0, 3):
         screen.blit(tabuleiros[i], tabuleiros_rect[i])
 
@@ -107,5 +119,17 @@ while 1:
 
     for ag in lista_aguas:
         desenha_agua(ag, screen)
+
+while 1:
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: sys.exit()
+
+    screen.fill(white)
+
+    if estado == "entrada":
+        estado_entrada()
+    elif estado == "jogo":
+        estado_jogo()
 
     pygame.display.flip()
