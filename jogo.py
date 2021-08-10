@@ -1,5 +1,7 @@
 import sys, pygame
 import pprint
+from pygame.locals import *
+
 pygame.init()
 pygame.font.init() 
 pygame.display.set_caption('Batalha Naval')
@@ -100,15 +102,70 @@ myfont = pygame.font.SysFont('Open Sans', 30)
 estado = "entrada"
 navios_inseridos = 0
 posicao_inicial = 0
+posicoes = ["A1", "A2"]
+
+# 0 -> pergunta a posicao, 1 -> tenta coferir a posicao, 2 -> pergunta segunda posicao, 3 -> confirma segunda posicao, 4 -> confere dados
+pergunta_estado = 0
 
 textos_perguntas = ["Diga a posicao inicial do", "Diga a posicao final do"]
 nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta-avioes (5)"]
 
-def estado_entrada():
+
+
+def pergunta_posicao():
+    return input ("Insira a posicao: ")
+
+def confere_posicoes(posicoes, navio_idx):
+    return True
+
+def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes):
+
     texto = textos_perguntas[posicao_inicial] + " " + nomes_navios[navios_inseridos]
     pergunta = myfont.render(texto, False, (0, 0, 0))
+    confirmacao = myfont.render("A posicao inserida esta correta? (s/n)", False, (0, 0, 0))
+    
     screen.blit(pergunta,(50,370))
+    screen.blit(myfont.render("Estado: " + str(pergunta_estado), False, (0, 0, 0)),(50,670))
 
+    if pergunta_estado == 1 or pergunta_estado == 3:
+        if pergunta_estado == 2:
+            pos = posicoes[1]
+        else:
+            pos = posicoes[0]
+
+        posicao_texto = myfont.render(pos, False, (0, 0, 0))
+        
+        screen.blit(confirmacao,(50,570))
+        screen.blit(posicao_texto,(50,470))
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key==K_s:
+                    pergunta_estado = pergunta_estado + 1
+
+            if event.type == pygame.KEYDOWN:
+                if event.key==K_n:
+                    pergunta_estado = pergunta_estado - 1
+                
+    elif pergunta_estado == 0 or pergunta_estado == 2:
+        if pergunta_estado == 2:
+            posicao_inicial = 1
+            posicoes[1] = pergunta_posicao()
+        else:
+            posicao_inicial = 0
+            posicoes[0] = pergunta_posicao()
+        
+        pergunta_estado = pergunta_estado + 1
+
+    elif pergunta_estado == 4:
+        pos_corretas = confere_posicoes(posicoes, navios_inseridos)
+
+        pergunta_estado = 0
+
+        if pos_corretas:
+            navios_inseridos = navios_inseridos + 1
+    
+    return [posicao_inicial, navios_inseridos, pergunta_estado, posicoes]
 
 def estado_jogo():
     for i in range(0, 3):
@@ -128,7 +185,7 @@ while 1:
     screen.fill(white)
 
     if estado == "entrada":
-        estado_entrada()
+        [posicao_inicial, navios_inseridos, pergunta_estado, posicoes] = estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
     elif estado == "jogo":
         estado_jogo()
 
