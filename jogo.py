@@ -1,10 +1,14 @@
 import sys, pygame
 import pprint
 from pygame.locals import *
+import string
+
 
 pygame.init()
 pygame.font.init() 
 pygame.display.set_caption('Batalha Naval')
+
+clock = pygame.time.Clock()
 
 size = width, height = 740, 740
 speed = [0.1, 0.1]
@@ -62,12 +66,38 @@ def desenha_navio(nav, screen):
         if nav.danos[i] > 0:
             screen.blit(nav.danos_spr[i], nav.rects[i])
 
+def converte_posicoes(posicoes, tab):
+    l1 = string.ascii_lowercase.index(posicoes[0][0].lower())
+    l2 = string.ascii_lowercase.index(posicoes[1][0].lower())
+    c1 = int(posicoes[0][1]) -1
+    c2 = int(posicoes[1][1]) -2
+    direc = ''
+    tam = 0
+    print(l1, l2, c1, c2)
+    if l1 == l2:
+        if c1 < c2:
+            direc = 'l'
+        else:
+            direc = 'o'
+
+        tam = abs(c1 - c2)
+    else:
+        if l1 < l2:
+            direc = 's'
+        else:
+            direc = 'n'
+
+        tam = abs(l1 - l2)
+
+    nav = navio([l1, c1], direc, tam, tab)
+    return nav
+
 lista_navios = []
-nav1 = navio([0, 0], 's', 3, 1)
-nav1.danos = [0, 0, 1]
-lista_navios.append(nav1)
-lista_navios.append(navio([2, 5], 'l', 4, 0))
-lista_navios.append(navio([5, 5], 'o', 5, 2))
+# nav1 = navio([0, 0], 's', 3, 1)
+# nav1.danos = [0, 0, 1]
+# lista_navios.append(nav1)
+# lista_navios.append(navio([2, 5], 'l', 4, 0))
+# lista_navios.append(navio([5, 5], 'o', 5, 2))
 
 # Tabuleiros
 # Sim, eu sei que uma classe era melhor
@@ -102,7 +132,7 @@ myfont = pygame.font.SysFont('Open Sans', 30)
 estado = "entrada"
 navios_inseridos = 0
 posicao_inicial = 0
-posicoes = ["A1", "A2"]
+posicoes = ["", ""]
 
 # 0 -> pergunta a posicao, 1 -> tenta coferir a posicao, 2 -> pergunta segunda posicao, 3 -> confirma segunda posicao, 4 -> confere dados
 pergunta_estado = 0
@@ -112,8 +142,17 @@ nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta
 
 
 
-def pergunta_posicao():
-    return input ("Insira a posicao: ")
+def pergunta_posicao(texto):
+    fim = False
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    fim = True
+                elif event.key == pygame.K_BACKSPACE:
+                    texto =  texto[:-1]
+                else:
+                    texto += event.unicode
+    return [fim, texto]
 
 def confere_posicoes(posicoes, navio_idx):
     return True
@@ -125,37 +164,34 @@ def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
     confirmacao = myfont.render("A posicao inserida esta correta? (s/n)", False, (0, 0, 0))
     
     screen.blit(pergunta,(50,370))
+    posicao_texto = myfont.render("Posicao inicial/final: " + str(posicoes[0]) + "/"+ str(posicoes[1]), False, (0, 0, 0))
+    screen.blit(posicao_texto,(50,470))
     screen.blit(myfont.render("Estado: " + str(pergunta_estado), False, (0, 0, 0)),(50,670))
 
     if pergunta_estado == 1 or pergunta_estado == 3:
-        if pergunta_estado == 2:
-            pos = posicoes[1]
-        else:
-            pos = posicoes[0]
-
-        posicao_texto = myfont.render(pos, False, (0, 0, 0))
+        
         
         screen.blit(confirmacao,(50,570))
-        screen.blit(posicao_texto,(50,470))
+        
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key==K_s:
-                    pergunta_estado = pergunta_estado + 1
+                    pergunta_estado += 1
 
             if event.type == pygame.KEYDOWN:
                 if event.key==K_n:
-                    pergunta_estado = pergunta_estado - 1
+                    pergunta_estado -= 1
                 
     elif pergunta_estado == 0 or pergunta_estado == 2:
-        if pergunta_estado == 2:
-            posicao_inicial = 1
-            posicoes[1] = pergunta_posicao()
-        else:
-            posicao_inicial = 0
-            posicoes[0] = pergunta_posicao()
-        
-        pergunta_estado = pergunta_estado + 1
+        fim_pergunta = False
+        idx = round(pergunta_estado/2)
+        posicao_inicial = idx
+
+        [fim_pergunta, posicoes[idx]] = pergunta_posicao(posicoes[idx])
+
+        if fim_pergunta:
+            pergunta_estado += 1
 
     elif pergunta_estado == 4:
         pos_corretas = confere_posicoes(posicoes, navios_inseridos)
@@ -163,7 +199,7 @@ def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
         pergunta_estado = 0
 
         if pos_corretas:
-            navios_inseridos = navios_inseridos + 1
+            navios_inseridos += 1
     
     return [posicao_inicial, navios_inseridos, pergunta_estado, posicoes]
 
@@ -177,16 +213,29 @@ def estado_jogo():
     for ag in lista_aguas:
         desenha_agua(ag, screen)
 
-while 1:
-    
+roda = True
+while roda:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
+        if event.type == pygame.QUIT:
+            roda = False
 
     screen.fill(white)
 
     if estado == "entrada":
+        navios_antes = navios_inseridos
         [posicao_inicial, navios_inseridos, pergunta_estado, posicoes] = estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
+        if navios_inseridos > navios_antes:
+            nav = converte_posicoes(posicoes, 1)
+            lista_navios.append(nav)
+            posicoes = ["", ""]
+
+        if navios_inseridos > 1:
+            estado = "jogo"
+
     elif estado == "jogo":
         estado_jogo()
 
     pygame.display.flip()
+
+pygame.quit()
+sys.exit()
