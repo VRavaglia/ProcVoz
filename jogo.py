@@ -127,6 +127,8 @@ for i in range(0, 3):
 
 # Textos e Etrada de Navios
 
+pilha_entrada = []
+
 myfont = pygame.font.SysFont('Open Sans', 30)
 
 estado = "entrada"
@@ -144,20 +146,22 @@ nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta
 
 def pergunta_posicao(texto):
     fim = False
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    fim = True
-                elif event.key == pygame.K_BACKSPACE:
-                    texto =  texto[:-1]
-                else:
-                    texto += event.unicode
+    if len(pilha_entrada) > 0:
+        tecla = pilha_entrada.pop()
+
+        if tecla == "%r":
+            fim = True
+        elif tecla == "%b":
+            texto = texto[:-1]
+        else:
+            texto += tecla
+    
     return [fim, texto]
 
 def confere_posicoes(posicoes, navio_idx):
     return True
 
-def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes):
+def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes, pilha_entrada):
 
     texto = textos_perguntas[posicao_inicial] + " " + nomes_navios[navios_inseridos]
     pergunta = myfont.render(texto, False, (0, 0, 0))
@@ -172,16 +176,12 @@ def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
         
         
         screen.blit(confirmacao,(50,570))
-        
-
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key==K_s:
-                    pergunta_estado += 1
-
-            if event.type == pygame.KEYDOWN:
-                if event.key==K_n:
-                    pergunta_estado -= 1
+        if len(pilha_entrada) > 0:
+            tecla = pilha_entrada.pop()
+            if tecla == "s":
+                pergunta_estado += 1
+            elif tecla == "n":
+                pergunta_estado -= 1
                 
     elif pergunta_estado == 0 or pergunta_estado == 2:
         fim_pergunta = False
@@ -218,12 +218,20 @@ while roda:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             roda = False
+        else:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    pilha_entrada.append("%r")
+                elif event.key == pygame.K_BACKSPACE:
+                    pilha_entrada.append("%b")
+                else:
+                    pilha_entrada.append(event.unicode)
 
     screen.fill(white)
 
     if estado == "entrada":
         navios_antes = navios_inseridos
-        [posicao_inicial, navios_inseridos, pergunta_estado, posicoes] = estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes)
+        [posicao_inicial, navios_inseridos, pergunta_estado, posicoes] = estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes, pilha_entrada)
         if navios_inseridos > navios_antes:
             nav = converte_posicoes(posicoes, 1)
             lista_navios.append(nav)
