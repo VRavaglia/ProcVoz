@@ -2,7 +2,7 @@ import sys, pygame
 import pprint
 from pygame.locals import *
 import string
-
+import random
 
 pygame.init()
 pygame.font.init() 
@@ -24,6 +24,7 @@ spr_tabuleiro = pygame.image.load("tabuleiro_grande.png")
 spr_navio = pygame.image.load("navio.png")
 spr_tiro = pygame.image.load("alvo.png")
 spr_agua = pygame.image.load("agua.png")
+spr_tiro = pygame.image.load("alvo.png")
 
 # Navios
 
@@ -66,6 +67,12 @@ def desenha_navio(nav, screen):
         if nav.danos[i] > 0:
             screen.blit(nav.danos_spr[i], nav.rects[i])
 
+def pos2num(pos):
+    l = string.ascii_lowercase.index(pos[0].lower())
+    c = int(pos[1]) -1
+
+    return [l, c]
+
 def converte_posicoes(posicoes, tab):
     l1 = string.ascii_lowercase.index(posicoes[0][0].lower())
     l2 = string.ascii_lowercase.index(posicoes[1][0].lower())
@@ -96,8 +103,8 @@ lista_navios = []
 # nav1 = navio([0, 0], 's', 3, 1)
 # nav1.danos = [0, 0, 1]
 # lista_navios.append(nav1)
-# lista_navios.append(navio([2, 5], 'l', 4, 0))
-# lista_navios.append(navio([5, 5], 'o', 5, 2))
+lista_navios.append(navio([2, 5], 'l', 4, 0))
+lista_navios.append(navio([5, 5], 'o', 5, 2))
 
 # Tabuleiros
 # Sim, eu sei que uma classe era melhor
@@ -114,9 +121,19 @@ class agua:
         self.rect = self.sprite.get_rect()
         self.rect = self.rect.move(grade2tab(pos, tab_idx))
 
+class tiro:
+    def __init__(self, pos, tab_idx):
+        self.pos = pos
+        self.tab_idx = tab_idx
+        self.sprite = pygame.Surface.copy(spr_tiro)
+        self.rect = self.sprite.get_rect()
+        self.rect = self.rect.move(grade2tab(pos, tab_idx))
+
 def desenha_agua(ag, screen):
     screen.blit(ag.sprite, ag.rect)
 
+def desenha_tiro(tr, screen):
+    screen.blit(tr.sprite, tr.rect)
 
 lista_aguas = []
 
@@ -129,9 +146,9 @@ for i in range(0, 3):
 
 pilha_entrada = []
 
-myfont = pygame.font.SysFont('Open Sans', 30)
+myfont = pygame.font.SysFont('arial', 30)
 
-estado = "entrada"
+estado = "jogo"
 navios_inseridos = 0
 posicao_inicial = 0
 posicoes = ["", ""]
@@ -142,7 +159,16 @@ pergunta_estado = 0
 textos_perguntas = ["Diga a posicao inicial do", "Diga a posicao final do"]
 nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta-avioes (5)"]
 
+def casa_aleatoria():
+    letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    return letras[random.randint(0, 9)] + str(random.randint(0, 10))
 
+lista_tiros = []
+
+def atira(casa, tabuleiro):
+    [l, c] = pos2num(casa)
+    print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
+    lista_tiros.append(tiro([c, l], tabuleiro))
 
 def pergunta_posicao(texto):
     fim = False
@@ -173,8 +199,7 @@ def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes,
     screen.blit(myfont.render("Estado: " + str(pergunta_estado), False, (0, 0, 0)),(50,670))
 
     if pergunta_estado == 1 or pergunta_estado == 3:
-        
-        
+          
         screen.blit(confirmacao,(50,570))
         if len(pilha_entrada) > 0:
             tecla = pilha_entrada.pop()
@@ -203,7 +228,7 @@ def estado_entrada(posicao_inicial, navios_inseridos, pergunta_estado, posicoes,
     
     return [posicao_inicial, navios_inseridos, pergunta_estado, posicoes]
 
-def estado_jogo():
+def estado_jogo(jogador, texto_casa, pilha_entrada):
     for i in range(0, 3):
         screen.blit(tabuleiros[i], tabuleiros_rect[i])
 
@@ -213,7 +238,33 @@ def estado_jogo():
     for ag in lista_aguas:
         desenha_agua(ag, screen)
 
+    for tr in lista_tiros:
+        desenha_tiro(tr, screen)    
+
+    jogador_txt = "Jogador"
+    
+    if jogador:
+        [fim_pergunta, texto_casa] = pergunta_posicao(texto_casa)
+        screen.blit(myfont.render("Diga qual casa deseja atirar. Atual: " + texto_casa, False, (0, 0, 0)) ,(50,50)) 
+        
+        if fim_pergunta:
+            jogador = False
+            atira(texto_casa, 2)
+            texto_casa = ""
+            
+    else:
+        jogador_txt = "Computador"
+        jogador = True
+        atira(casa_aleatoria(), 1)        
+
+    screen.blit(myfont.render("Turno do " + jogador_txt, False, (0, 0, 0)) ,(50,10))
+
+    return [jogador, texto_casa, pilha_entrada]
+
 roda = True
+jogador = True
+texto_casa = ""
+
 while roda:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -241,7 +292,7 @@ while roda:
             estado = "jogo"
 
     elif estado == "jogo":
-        estado_jogo()
+        [jogador, texto_casa, pilha_entrada] = estado_jogo(jogador, texto_casa, pilha_entrada)
 
     pygame.display.flip()
 
