@@ -48,14 +48,11 @@ class navio:
         self.rot = rot
         self.tam = tam
         self.tab_idx = tab_idx
-        self.danos = []
-        self.danos_spr = []
+        self.danos = 0
         self.sprites = []
         self.rects = []
         for i in range(0, tam):
-            self.danos.append(0)
             self.sprites.append(pygame.Surface.copy(spr_navio))
-            self.danos_spr.append(pygame.Surface.copy(spr_tiro))
             self.rects.append(self.sprites[i].get_rect())
             self.rects[i] = self.rects[i].move(grade2tab([pos[0]+rot2vect(rot)[0]*i, pos[1]+rot2vect(rot)[1]*i], tab_idx))
             if self.rot == 'o' or self.rot == 'l':
@@ -64,10 +61,9 @@ class navio:
 def desenha_navio(nav, screen):
     for i in range(0, nav.tam):
         screen.blit(nav.sprites[i], nav.rects[i])
-        if nav.danos[i] > 0:
-            screen.blit(nav.danos_spr[i], nav.rects[i])
 
 def pos2num(pos):
+    print(pos)
     l = string.ascii_lowercase.index(pos[0].lower())
     c = int(pos[1]) -1
 
@@ -161,14 +157,53 @@ nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta
 
 def casa_aleatoria():
     letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-    return letras[random.randint(0, 9)] + str(random.randint(0, 10))
+    return letras[random.randint(0, 9)] + str(random.randint(1, 10))
 
 lista_tiros = []
 
+def navioNaCasa(l , c, tab):
+    for nav in lista_navios:
+        if nav.tab_idx == tab:
+            print("Pos navio: ", str(nav.pos), str(l), str(c), str(nav.tam), nav.rot)
+            if nav.rot == 'n':
+                if nav.pos[1] <= l and nav.pos[1] +nav.tam -1 >= l and nav.pos[0] == c:
+                    return nav
+            elif nav.rot == 's':
+                if nav.pos[1] <= l and nav.pos[1] +nav.tam -1 >= l and nav.pos[0] == c:
+                    return nav
+            elif nav.rot == 'l':
+                if nav.pos[0] <= c and nav.pos[0] +nav.tam -1 >= c and nav.pos[1] == l:
+                    return nav
+            else:
+                if nav.pos[0] >= c and nav.pos[0] -nav.tam +1 <= c and nav.pos[1] == l:
+                    return nav
+    return False
+
 def atira(casa, tabuleiro):
     [l, c] = pos2num(casa)
-    print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
-    lista_tiros.append(tiro([c, l], tabuleiro))
+
+    repetido = False
+    
+    for tir in lista_tiros:
+        if tir.tab_idx == 2:
+            if tir.pos == [c, l]:
+                repetido = True
+                break
+    if repetido:
+        return False
+    else:
+        nav = navioNaCasa(l, c, tabuleiro)
+        print(nav)
+
+        if nav:
+            nav.danos += 1
+            if nav.danos >= nav.tam:
+                lista_navios.remove(nav)
+                print("Navio afundado!")
+
+        print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
+        lista_tiros.append(tiro([c, l], tabuleiro))
+        return True
 
 def pergunta_posicao(texto):
     fim = False
@@ -248,8 +283,10 @@ def estado_jogo(jogador, texto_casa, pilha_entrada):
         screen.blit(myfont.render("Diga qual casa deseja atirar. Atual: " + texto_casa, False, (0, 0, 0)) ,(50,50)) 
         
         if fim_pergunta:
-            jogador = False
-            atira(texto_casa, 2)
+            if atira(texto_casa, 2):
+                jogador = False
+            else:
+                print("Tiro repetido")
             texto_casa = ""
             
     else:
