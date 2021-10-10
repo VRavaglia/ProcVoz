@@ -3,6 +3,7 @@ import pprint
 from pygame.locals import *
 import string
 import random
+from reconhecimento_voz import *
 
 pygame.init()
 pygame.font.init() 
@@ -157,7 +158,9 @@ nomes_navios = ["Submarino (2)", "Contratorpedo (3)", "Navio-tanque (4)", "Porta
 
 def casa_aleatoria():
     letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-    return letras[random.randint(0, 9)] + str(random.randint(1, 10))
+    casa = letras[random.randint(0, 9)] + str(random.randint(1, 10))
+    criar_audio(casa)
+    return casa
 
 lista_tiros = []
 
