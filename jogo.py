@@ -4,6 +4,7 @@ from pygame.locals import *
 import string
 import random
 from reconhecimento_voz import *
+from playsound import playsound
 
 pygame.init()
 pygame.font.init() 
@@ -199,10 +200,13 @@ def atira(casa, tabuleiro):
         print(nav)
 
         if nav:
+            playsound('audios/explosion.mp3')
             nav.danos += 1
             if nav.danos >= nav.tam:
                 lista_navios.remove(nav)
                 print("Navio afundado!")
+        else:
+            playsound('audios/water.mp3')
 
         print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
         lista_tiros.append(tiro([c, l], tabuleiro))
