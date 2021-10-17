@@ -25,7 +25,11 @@ def criar_audio(texto):
         request={"input": texttospeech_v1.SynthesisInput(text=texto), "voice": voz, "audio_config": audio_config}
     )
 
+    # If another audio was previously created, modify its permissions to avoid PermissionDenied error.
+    if os.path.isfile("voz.mp3"):
+        os.chmod("voz.mp3", 0o777)
     # Save audio file.
-    with open(r"voz.mp3", "wb") as saida:
+    with open("voz.mp3", "wb") as saida:
         saida.write(resposta.audio_content)
     playsound("voz.mp3")
+    os.remove("voz.mp3")
