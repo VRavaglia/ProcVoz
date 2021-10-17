@@ -3,7 +3,8 @@ import pprint
 from pygame.locals import *
 import string
 import random
-from reconhecimento_voz import *
+from criar_audio import criar_audio
+from receber_comando import receber_comando
 
 pygame.init()
 pygame.font.init() 
