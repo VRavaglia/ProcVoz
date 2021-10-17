@@ -149,19 +149,23 @@ def identificar_comando(transcripts):
         "E": re.compile(r"(?<!a-z)(e|è|é)(?!a-z)", re.I),
         "F": re.compile(r"(?<!a-z)(f|efe)(?!a-z)", re.I),
         "G": re.compile(r"(?<!a-z)(g|gê)(?!a-z)", re.I),
-        "H": re.compile(r"(?<!a-z)(h|agá)(?!a-z)", re.I)
+        "H": re.compile(r"(?<!a-z)(h|agá)(?!a-z)", re.I),
+        "I": re.compile(r"(?<!a-z)(i|ih)(?!a-z)", re.I),
+        "J": re.compile(r"(?<!a-z)(j|jota)(?!a-z)", re.I)
     }
 
     # Define padrões de regex para os números.
     padroes_busca_numero = {
-        "1": re.compile(r"1|(um|hum)"),
+        "1": re.compile(r"1(?!0)|(um|hum)"),
         "2": re.compile(r"2|(dois)"),
         "3": re.compile(r"3|(três)"),
         "4": re.compile(r"4|(quatro)"),
         "5": re.compile(r"5|(cinco)"),
         "6": re.compile(r"6|(seis)"),
         "7": re.compile(r"7|(sete)"),
-        "8": re.compile(r"8|(oito)")
+        "8": re.compile(r"8|(oito)"),
+        "9": re.compile(r"9|(nove)"),
+        "10": re.compile(r"10|(dez)")
     }
 
     # Itera as transcrições em ordem, testando os matches pra cada uma. (É importante fazer dessa forma pois as transcrições estão em ordem de mais pra menos provável).
@@ -212,14 +216,16 @@ def receber_comando():
         language_code="pt-BR",
         max_alternatives=5, # São fornecidas até 5 alternativas para a transcrição, que serão processadas para se obter um comando.
         speech_contexts=[speech.SpeechContext(phrases=[
-                        "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8",
-                        "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
-                        "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8",
-                        "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
-                        "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8",
-                        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8",
-                        "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8",
-                        "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8",
+                        "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10",
+                        "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10",
+                        "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10",
+                        "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10",
+                        "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10",
+                        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10",
+                        "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10",
+                        "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "H10",
+                        "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10",
+                        "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10",
                         ])], # Especifica o contexto, ou seja, as frases mais esperadas. No caso, são os comandos possíveis.
         model="command_and_search" # Especifica o modo de reconhecimento. No caso, é selecionado o mais apropriado para comandos curtos.
     )
