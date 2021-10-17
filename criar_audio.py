@@ -2,12 +2,13 @@ import os
 from google.cloud import texttospeech_v1
 from gtts import gTTS
 from playsound import playsound
+from credentials import CREDENTIALS_FILE_NAME
 
 
 def criar_audio(texto):
 
     # Set credentials environment variable and initialize text to speech client.
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "batalha-naval-328614-3953378a20b8.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CREDENTIALS_FILE_NAME
     cliente = texttospeech_v1.TextToSpeechClient()
 
     # Specify voice and configuration parameters for Google TTS.

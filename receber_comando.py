@@ -26,6 +26,7 @@ from google.cloud import speech
 
 import pyaudio
 from six.moves import queue
+from credentials import CREDENTIALS_FILE_NAME
 
 
 # Audio recording parameters
@@ -199,7 +200,7 @@ def identificar_comando(transcripts):
 def receber_comando():
 
     # Define as credenciais pelo arquivo de json.
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "batalha-naval-328614-3953378a20b8.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CREDENTIALS_FILE_NAME
 
     # Instancia o cliente para a voz.
     client = speech.SpeechClient()

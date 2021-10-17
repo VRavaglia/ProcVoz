@@ -1,5 +1,6 @@
 pygame
-playsound
+pipwin
+playsound==1.2.2
 gTTS
-google-cloud-textospeech
-SpeechRecognition
+google-cloud-texttospeech
+google-cloud-speech
