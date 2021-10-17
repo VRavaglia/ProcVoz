@@ -102,15 +102,17 @@ lista_navios = []
 # nav1 = navio([0, 0], 's', 3, 1)
 # nav1.danos = [0, 0, 1]
 # lista_navios.append(nav1)
-lista_navios.append(navio([2, 5], 'l', 4, 0))
-lista_navios.append(navio([5, 5], 'o', 5, 2))
+# lista_navios.append(navio([2, 5], 'l', 4, 0))
+# lista_navios.append(navio([2, 5], 'l', 4, 2))
+lista_navios.append(navio([8, 9], 'o', 2, 2))
+lista_navios.append(navio([5, 5], 'o', 5, 1))
 
 # Tabuleiros
 # Sim, eu sei que uma classe era melhor
 
 tabuleiros = []
 tabuleiros_rect = []
-tabuleiros_pos_inicial = [[100, 100], [100, 420], [420, 210]]
+tabuleiros_pos_inicial = [[-1000, -1000], [100, 420], [420, 210]]
 
 class agua:
     def __init__(self, pos, tab_idx):
@@ -287,15 +289,20 @@ def estado_jogo(jogador, texto_casa, pilha_entrada):
     jogador_txt = "Jogador"
     
     if jogador:
-        [fim_pergunta, texto_casa] = pergunta_posicao(texto_casa)
-        screen.blit(myfont.render("Diga qual casa deseja atirar. Atual: " + texto_casa, False, (0, 0, 0)) ,(50,50)) 
+        [fim_pergunta, texto_casa] = pergunta_posicao(texto_casa)       
         
         if fim_pergunta:
+            
+            voz = receber_comando()
+            print("voz: ")
+            print(voz)
+            texto_casa = voz[0] + voz[1]
             if atira(texto_casa, 2):
                 jogador = False
             else:
                 print("Tiro repetido")
-            texto_casa = ""
+         
+        screen.blit(myfont.render("Aperte ENTER para dizer qual casa quer atirar.", False, (0, 0, 0)) ,(50,50))  
             
     else:
         jogador_txt = "Computador"
@@ -338,6 +345,24 @@ while roda:
 
     elif estado == "jogo":
         [jogador, texto_casa, pilha_entrada] = estado_jogo(jogador, texto_casa, pilha_entrada)
+        nNavP = 0
+        nNavC = 0
+
+        for nav in lista_navios:
+            if nav.tab_idx == 1:
+                nNavP += 1
+            elif nav.tab_idx == 2:
+                nNavC += 1
+
+        if nNavP == 0:
+            estado = "fimC"
+        elif nNavC == 0:
+            estado = "fimP"      
+    
+    elif estado == "fimC":
+        screen.blit(myfont.render("Computador Ganhou", False, (0, 0, 0)) ,(50,10))
+    elif estado == "fimP":
+        screen.blit(myfont.render("Jogador Ganhou", False, (0, 0, 0)) ,(50,10))
 
     pygame.display.flip()
 
