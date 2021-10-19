@@ -309,7 +309,8 @@ def estado_jogo(jogador, texto_casa, pilha_entrada):
         jogador = True
         atira(casa_aleatoria(), 1)        
 
-    screen.blit(myfont.render("Turno do " + jogador_txt, False, (0, 0, 0)) ,(50,10))
+    screen.blit(myfont.render("Jogador", False, (0, 0, 0)) ,(155,380))
+    screen.blit(myfont.render("Computador", False, (0, 0, 0)), (450, 170))
 
     return [jogador, texto_casa, pilha_entrada]
 
