@@ -66,7 +66,7 @@ def desenha_navio(nav, screen):
         screen.blit(nav.sprites[i], nav.rects[i])
 
 def pos2num(pos):
-    print(pos)
+    #print(pos)
     l = string.ascii_lowercase.index(pos[0].lower())
     c = int(pos[1]) -1
 
@@ -79,7 +79,7 @@ def converte_posicoes(posicoes, tab):
     c2 = int(posicoes[1][1]) -2
     direc = ''
     tam = 0
-    print(l1, l2, c1, c2)
+    #print(l1, l2, c1, c2)
     if l1 == l2:
         if c1 < c2:
             direc = 'l'
@@ -171,7 +171,7 @@ lista_tiros = []
 def navioNaCasa(l , c, tab):
     for nav in lista_navios:
         if nav.tab_idx == tab:
-            print("Pos navio: ", str(nav.pos), str(l), str(c), str(nav.tam), nav.rot)
+            #print("Pos navio: ", str(nav.pos), str(l), str(c), str(nav.tam), nav.rot)
             if nav.rot == 'n':
                 if nav.pos[1] <= l and nav.pos[1] +nav.tam -1 >= l and nav.pos[0] == c:
                     return nav
@@ -200,18 +200,18 @@ def atira(casa, tabuleiro):
         return False
     else:
         nav = navioNaCasa(l, c, tabuleiro)
-        print(nav)
+        #print(nav)
 
         if nav:
             playsound('audios/explosion.mp3')
             nav.danos += 1
             if nav.danos >= nav.tam:
                 lista_navios.remove(nav)
-                print("Navio afundado!")
+                #print("Navio afundado!")
         else:
             playsound('audios/water.mp3')
 
-        print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
+        #print("Tiro Linha: " + str(l) + " Coluna: " + str(c) + " Tabuleiro: " + str(tabuleiro))
         lista_tiros.append(tiro([c, l], tabuleiro))
         return True
 
@@ -294,13 +294,14 @@ def estado_jogo(jogador, texto_casa, pilha_entrada):
         if fim_pergunta:
             
             voz = receber_comando()
-            print("voz: ")
-            print(voz)
+            #print("voz: ")
+            #print(voz)
             texto_casa = voz[0] + voz[1]
             if atira(texto_casa, 2):
                 jogador = False
             else:
-                print("Tiro repetido")
+                pass
+                #print("Tiro repetido")
          
         screen.blit(myfont.render("Aperte ENTER para dizer qual casa quer atirar.", False, (0, 0, 0)) ,(50,50))  
             
